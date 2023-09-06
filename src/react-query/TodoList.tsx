@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
 
-interface Todo {
+export interface Todo {
   id: number;
   title: string;
   userId: number;
@@ -9,25 +9,24 @@ interface Todo {
 }
 
 const TodoList = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    axios
+  const getTodo = async () => {
+    return axios
       .get("https://jsonplaceholder.typicode.com/todos")
-      .then((res) => setTodos(res.data))
-      .catch((error) => setError(error));
-  }, []);
-
-  if (error) return <p>{error}</p>;
+      .then((res) => res.data);
+  };
+  const { data } = useQuery({
+    queryKey: ["todos"],
+    queryFn: getTodo,
+  });
 
   return (
     <ul className="list-group d-flex justify-content-center p-4">
-      {todos.map((todo) => (
-        <li key={todo.id} className="list-group-item p-4">
-          {todo.title}
-        </li>
-      ))}
+      {data &&
+        data.map((todo: Todo) => (
+          <li key={todo.id} className="list-group-item p-4">
+            {todo.title}
+          </li>
+        ))}
     </ul>
   );
 };
